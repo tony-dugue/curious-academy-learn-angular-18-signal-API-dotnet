@@ -3,7 +3,28 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<VinylDb>(opt => opt.UseInMemoryDatabase("VinylList"));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApiDocument(config =>
+{
+  config.DocumentName = "VinylAPI";
+  config.Title = "VinylAPI v1";
+  config.Version = "v1";
+});
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+  app.UseOpenApi();
+  app.UseSwaggerUi(config =>
+  {
+    config.DocumentTitle = "VinylAPI";
+    config.Path = "/swagger";
+    config.DocumentPath = "/swagger/{documentName}/swagger.json";
+    config.DocExpansion = "list";
+  });
+}
 
 app.MapGet("/vinyls", async (VinylDb db) =>
     await db.Vinyls.ToListAsync());

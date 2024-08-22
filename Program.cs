@@ -1,6 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+  options.AddPolicy(name: MyAllowSpecificOrigins, policy =>
+  {
+    policy.WithOrigins("http://localhost:4200")
+          .AllowAnyHeader()
+          .AllowAnyMethod();
+  });
+});
+
 builder.Services.AddDbContext<VinylDb>(opt => opt.UseInMemoryDatabase("VinylList"));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -69,4 +82,7 @@ app.MapDelete("/vinyls/{id}", async (int id, VinylDb db) =>
   return Results.NotFound();
 });
 
+app.UseCors(MyAllowSpecificOrigins);
+
 app.Run();
+
